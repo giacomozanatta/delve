@@ -7,21 +7,27 @@
       "repository": "git@github.com:lisa-analyzer/lisa.git",
       "type": "lisaCore",
       "branch": "tags/v0.1",
-      "antlrGeneratedSrcBuildRoot": "lisa-imp"
+      "antlrGeneratedSrcBuildRoot": "lisa-imp",
+      "srcRoot": "lisa",
+      "targetLanguages": ["IMP"]
     },
     {
       "name": "go-lisa",
       "repository": "git@github.com:lisa-analyzer/go-lisa.git",
       "type": "frontend",
       "branch": "scsr2024",
-      "antlrGeneratedSrcBuildRoot": "go-lisa"
+      "antlrGeneratedSrcBuildRoot": "go-lisa",
+      "srcRoot": "golisa",
+      "targetLanguages": ["Go"]
     },
     {
       "name": "pylisa",
       "repository": "git@github.com:lisa-analyzer/pylisa.git",
       "type": "frontend",
       "branch": "master",
-      "antlrGeneratedSrcBuildRoot": "."
+      "antlrGeneratedSrcBuildRoot": ".",
+      "srcRoot": "pylisa",
+      "targetLanguages": ["Python", "LibraryDefinition"]
     }
   ]
 }
