@@ -1,3 +1,24 @@
+import org.json.JSONObject
+import java.nio.file.Files
+import java.nio.file.Paths
+
+data class Dependency(
+    val name: String,
+    val repository: String,
+    val type: String,
+    val branch: String,
+    val antlrGeneratedSrcBuildRoot: String,
+    val srcRoot: String,
+    val targetLanguages: List<String>
+)
+
+data class ProjectConfig(
+    val lisaRootPkg: String,
+    val projectPath: String,
+    val dependencies: List<Dependency>
+)
+
+
 plugins {
     id("java")
     id("antlr")
@@ -66,12 +87,36 @@ tasks.generateGrammarSource {
     dependsOn("sourcesJar")
     maxHeapSize = "64m"
     arguments.addAll(listOf("-visitor", "-no-listener"))
-
     doLast {
+
+        val jsonText = Files.readString(Paths.get("$projectDir/lisa-dependencies.json"))
+        val jsonObj = JSONObject(jsonText)
+
+        // Get dependencies array
+        val dependencies = jsonObj.getJSONArray("dependencies")
+
+        for (i in 0 until dependencies.length()) {
+            val dependency = dependencies.getJSONObject(i)
+            val srcRoot = dependency.getString("srcRoot")
+            val targetLanguages = dependency.getJSONArray("targetLanguages")
+
+            for (j in 0 until targetLanguages.length()) {
+                val targetLanguage = targetLanguages.getString(j)
+                val srcDir = file("build/generated-src/antlr/main/")
+                val destDir = file("build/generated-src/antlr/main/it/unive/$srcRoot/antlr")
+
+                copy {
+                    from(srcDir)
+                    include("${targetLanguage}*.java") // Only Java files starting with targetLanguage
+                    into(destDir)
+                }
+            }
+        }
+        //(project.plugins.getPlugin(GenerateDependenciesGrammarSource::class.java)).exec()
         copy {
             from("build/generated-src/antlr/main/")
-            include("*.java")
-            into("build/generated-src/antlr/main/it/unive/pylisa/antlr")
+            include("Maru*.java")
+            into("build/generated-src/antlr/main/it/unive/delve/antlr")
         }
         project.delete(fileTree("build/generated-src/antlr/main") {
             include("*.*")
@@ -80,7 +125,7 @@ tasks.generateGrammarSource {
 }
 
 java {
-    withJavadocJar()
+    //withJavadocJar()
     withSourcesJar()
 }
 
@@ -89,11 +134,11 @@ tasks.compileJava {
     targetCompatibility = "17"
 }
 
-tasks.javadoc {
+/*tasks.javadoc {
     if (JavaVersion.current().isJava9Compatible) {
         (options as StandardJavadocDocletOptions).addBooleanOption("html5", true)
     }
-}
+}*/
 
 tasks.test {
     useJUnitPlatform()
